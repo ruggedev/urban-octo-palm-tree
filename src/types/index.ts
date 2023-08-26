@@ -1,4 +1,4 @@
-import { Contract, ethers } from 'ethers'
+import { BigNumber, Contract, ethers } from 'ethers'
 import RouterAbi from '../abis/IUniswapV2Router02.json'
 import FactoryAbi from '../abis/IUniswapV2Factory.json'
 import ERC20Abi from '../abis/ERC20.json'
@@ -22,7 +22,7 @@ export class UniswapV2Like {
   routerAddress: string
   routerInstance: Contract
 
-  factory: string
+  factoryAddress: string
   factoryContract: Contract
 
   fee: number
@@ -31,7 +31,7 @@ export class UniswapV2Like {
     this.name = _name
     this.routerAddress = _router
     this.routerInstance = new Contract(_router, RouterAbi, jsonProvider)
-    this.factory = _factory
+    this.factoryAddress = _factory
     this.factoryContract = new Contract(_factory, FactoryAbi, jsonProvider)
     this.fee = _fee
     console.log(`New UniswapV2Like ${_name} added`)
@@ -61,5 +61,39 @@ export class Token {
     this.decimals = _decimals
     this.contract = new ethers.Contract(_address, ERC20Abi, jsonProvider)
     console.debug(`New token created: ${_name}`)
+  }
+}
+
+export class Pair {
+  exchange: UniswapV2Like
+
+  address: string
+  contract: Contract
+
+  token0: Token
+  token1: Token
+  reserve0: BigNumber = BigNumber.from(0)
+  reserve1: BigNumber = BigNumber.from(0)
+  lastUpdateTimestamp: number
+
+  constructor(
+    _token0: Token,
+    _token1: Token,
+    _pairAddress: string,
+    _exchange: UniswapV2Like,
+  ) {
+    if (!_token0 || !_token1 || !_pairAddress || !_exchange) {
+      return
+    }
+
+    this.exchange = _exchange
+    ;[this.token0, this.token1] = [_token0, _token1]
+    this.address = _pairAddress
+  }
+
+  public async updateReserves(r0: BigNumber, r1: BigNumber, t: number) {
+    this.reserve0 = r0
+    this.reserve1 = r1
+    this.lastUpdateTimestamp = t
   }
 }

@@ -1,4 +1,8 @@
-import { getAllTokens, getAllUniswap } from './constants'
+import {
+  getAllTokens,
+  getAllUniPairs,
+  getAllUniswapInstance,
+} from './constants'
 import { wssProvider } from './network'
 import { UniswapV2Like } from './types'
 
@@ -24,19 +28,23 @@ async function main() {
     process.exit(1)
   }
 
-  const uniswapV2s = await getAllUniswap()
-  if (!uniswapV2s) {
+  const unis = await getAllUniswapInstance()
+  if (!unis) {
     console.error('UniswapV2 not found')
     process.exit(1)
   }
 
   const tokens = await getAllTokens()
+  if (!tokens) {
+    console.error('Tokens not found')
+    process.exit(1)
+  }
+  const pairs = await getAllUniPairs(unis, tokens)
+  console.log(pairs)
 
-  console.log(tokens)
-
-  wssProvider.on('pending', async (txHash) =>
-    filterTransaction(txHash, uniswapV2s),
-  )
+  //   wssProvider.on('pending', async (txHash: any) =>
+  //     filterTransaction(txHash, unis),
+  //   )
 }
 
 main()

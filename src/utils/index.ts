@@ -1,3 +1,6 @@
+import { ethers } from 'ethers'
+import { Address, Token, UniswapV2Like } from '../types'
+
 // Split array into multiple chunks
 export function chunkifyArray<T>(array: T[], chunkSize: number): T[][] {
   const chunkedArray: any[][] = []
@@ -11,4 +14,28 @@ export function chunkifyArray<T>(array: T[], chunkSize: number): T[][] {
   }
 
   return chunkedArray
+}
+
+export const sortTokens = (tokenA: Token, tokenB: Token) => {
+  if (
+    ethers.BigNumber.from(tokenA.address).lt(
+      ethers.BigNumber.from(tokenB.address),
+    )
+  ) {
+    return [tokenA, tokenB]
+  }
+  return [tokenB, tokenA]
+}
+
+// get UniswapV2Like obj by it's factoryAddress
+export function getExchange(
+  factoryAddress: Address,
+  exchanges: UniswapV2Like[],
+): UniswapV2Like | undefined {
+  return exchanges.find((obj) => {
+    return (
+      obj.factoryAddress.toLowerCase() == factoryAddress.toLowerCase() ??
+      undefined
+    )
+  })
 }
