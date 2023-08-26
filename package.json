@@ -10,10 +10,14 @@
     "start": "npx ts-node src/index.ts"
   },
   "devDependencies": {
+    "@types/node": "^18.14.2",
+    "ts-loader": "^9.4.2",
+    "ts-node": "^10.9.1",
     "chalk": "^5.3.0",
     "dotenv": "^16.3.1",
     "ethers": "^6.7.1",
     "typescript": "^5.2.2",
+    "source-map-loader": "^4.0.1",
     "viem": "^1.7.0"
   }
 }
