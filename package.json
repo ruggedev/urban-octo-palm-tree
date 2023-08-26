@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "chalk": "^5.3.0",
+    "dotenv": "^16.3.1",
     "ethers": "^6.7.1",
     "typescript": "^5.2.2",
     "viem": "^1.7.0"
