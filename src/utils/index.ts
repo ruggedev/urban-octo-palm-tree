@@ -39,3 +39,8 @@ export function getExchange(
     )
   })
 }
+
+// check if obj inside the obj arr
+export function checkArray<T>(array: T[][], element: T[]): boolean {
+  return JSON.stringify(array).indexOf(JSON.stringify(element)) !== -1
+}

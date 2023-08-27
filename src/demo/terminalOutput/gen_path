@@ -1,0 +1,7 @@
+ python3 path.py                                                                                                                                                                                                                       ─╯
+Generating routes from pairs, with max hop: 8
+Condition: route start and end with ['USDT', 'USDC', 'DAI', 'BUSD', 'WMATIC']
+# of pairs unique: 178
+# of route: 9673672
+# of valid route: 346490
+Finished. Routes stored into src/constants/routes.json

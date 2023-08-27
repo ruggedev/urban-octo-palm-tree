@@ -11,7 +11,8 @@
     "lint": "eslint . --ext .ts",
     "start": "npx ts-node src/index.ts",
     "demo:token": "npx ts-node src/demo/tokens.ts",
-    "demo:pair": "npx ts-node src/demo/pairs.ts"
+    "demo:pair": "npx ts-node src/demo/pairs.ts",
+    "export:pair": "npx ts-node src/exportPairs.ts"
   },
   "devDependencies": {
     "@types/node": "^18.14.2",
