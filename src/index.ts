@@ -5,6 +5,7 @@ import {
 } from './constants'
 import { wssProvider } from './network'
 import { UniswapV2Like } from './types'
+import { printAllTokens } from './utils/debug'
 
 const filterTransaction = async (
   txHash: string,
@@ -39,8 +40,10 @@ async function main() {
     console.error('Tokens not found')
     process.exit(1)
   }
-  const pairs = await getAllUniPairs(unis, tokens)
-  console.log(pairs)
+
+  printAllTokens(tokens)
+  // const pairs = await getAllUniPairs(unis, tokens)
+  // console.log(pairs)
 
   //   wssProvider.on('pending', async (txHash: any) =>
   //     filterTransaction(txHash, unis),

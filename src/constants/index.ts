@@ -78,7 +78,7 @@ export async function getAllTokens(): Promise<Token[] | undefined> {
   if (!symbols || !decimals || !names) return
   const tokens: Token[] = []
   tokenAddresses.map((tokenAddress, i) => {
-    let newToken = new Token(
+    const newToken = new Token(
       names[i].res,
       tokenAddress,
       symbols[i].res,
@@ -111,7 +111,7 @@ export async function getAllUniPairs(
   for (let i = 0; i < tokens.length; i++) {
     for (let j = 0; j < tokens.length; j++) {
       if (i == j) continue
-      let [token0, token1] = sortTokens(tokens[i], tokens[j])
+      const [token0, token1] = sortTokens(tokens[i], tokens[j])
       pairList.push([token0, token1])
     }
   }
@@ -153,18 +153,18 @@ export async function getAllUniPairs(
           return token.address === r.args![1]
         })
         if (!tokens0 || !tokens1) return
-        let uni = getExchange(r.address, unis)
+        const uni = getExchange(r.address, unis)
+
         if (!uni) {
           console.error('Exchange not found ')
         } else {
-          let newPair = new Pair(tokens0, tokens1, r.res, uni)
-
+          const newPair = new Pair(tokens0, tokens1, r.res, uni)
           if (newPair) pairs.push(newPair)
           else console.log('failed to create new token')
         }
       }
     }
   })
-  await massUpdateReserve(pairs)
+  await massUpdateReserve(pairs, true)
   return pairs
 }

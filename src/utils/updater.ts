@@ -5,7 +5,10 @@ import { multiCallHelper } from './multicall'
 import { BigNumber } from 'ethers'
 import { viemClient } from '../network'
 
-export async function massUpdateReserve(pairs: Pair[]) {
+export async function massUpdateReserve(
+  pairs: Pair[],
+  updatePrice: boolean = false,
+) {
   // update reserves
   const updatePairCall: any[] = []
   pairs.map((pair) => {
@@ -23,6 +26,7 @@ export async function massUpdateReserve(pairs: Pair[]) {
       BigNumber.from(r.res[0]),
       BigNumber.from(r.res[1]),
       r.res[2],
+      updatePrice,
     )
   })
 }

@@ -4,6 +4,7 @@ import FactoryAbi from '../abis/IUniswapV2Factory.json'
 import ERC20Abi from '../abis/ERC20.json'
 import { jsonProvider } from '../network'
 import { Abi } from 'viem'
+import { fetchCurrentTokenPrice } from '../utils/price'
 
 export type Address = `0x${string}`
 export interface TPayload {
@@ -48,6 +49,7 @@ export class Token {
   name: string
   decimals: number
   contract: Contract
+  tokenPrice: number
 
   constructor(
     _name: string,
@@ -62,6 +64,11 @@ export class Token {
     this.contract = new ethers.Contract(_address, ERC20Abi, jsonProvider)
     console.debug(`New token created: ${_name}`)
   }
+
+  public async updatePrice(): Promise<void> {
+    this.tokenPrice =
+      (await fetchCurrentTokenPrice('polygon', this.address)) ?? 0
+  }
 }
 
 export class Pair {
@@ -73,7 +80,9 @@ export class Pair {
   token0: Token
   token1: Token
   reserve0: BigNumber = BigNumber.from(0)
+  reserve0USD: BigNumber = BigNumber.from(0)
   reserve1: BigNumber = BigNumber.from(0)
+  reserve1USD: BigNumber = BigNumber.from(0)
   lastUpdateTimestamp: number
 
   constructor(
@@ -91,9 +100,21 @@ export class Pair {
     this.address = _pairAddress
   }
 
-  public async updateReserves(r0: BigNumber, r1: BigNumber, t: number) {
+  public async updateReserves(
+    r0: BigNumber,
+    r1: BigNumber,
+    t: number,
+    updatePrice: boolean = false,
+  ) {
     this.reserve0 = r0
     this.reserve1 = r1
     this.lastUpdateTimestamp = t
+
+    if (updatePrice) {
+      await this.token0.updatePrice()
+      await this.token1.updatePrice()
+      this.reserve0USD = this.reserve0.mul(this.token0.tokenPrice)
+      this.reserve1USD = this.reserve1.mul(this.token1.tokenPrice)
+    }
   }
 }
