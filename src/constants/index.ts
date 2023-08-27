@@ -7,7 +7,7 @@ import { getExchange, sortTokens } from '../utils'
 import ERC20Abi from '../abis/ERC20.json'
 import FactoryABI from '../abis/IUniswapV2Factory.json'
 import { ethers } from 'ethers'
-import { massUpdateReserve } from '../utils/updater'
+import { massUpdatePrice, massUpdateReserve } from '../utils/updater'
 
 export async function getAllUniswapInstance(): Promise<
   UniswapV2Like[] | undefined
@@ -42,6 +42,7 @@ export async function getAllTokens(): Promise<Token[] | undefined> {
     console.error('Invalid JSON')
     return undefined
   }
+
   const tokenAddresses: string[] = []
   JSON.parse(tokenJson).map((token: any) => {
     tokenAddresses.push(token['address'])
@@ -88,6 +89,9 @@ export async function getAllTokens(): Promise<Token[] | undefined> {
       tokens.push(newToken)
     } else console.log('failed to create new token')
   })
+
+  // get price when init tokens
+  await massUpdatePrice(tokens)
 
   return tokens
 }
@@ -165,6 +169,6 @@ export async function getAllUniPairs(
       }
     }
   })
-  await massUpdateReserve(pairs, true)
+  await massUpdateReserve(pairs)
   return pairs
 }

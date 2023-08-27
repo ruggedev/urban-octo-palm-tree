@@ -1,10 +1,11 @@
 import { BigNumber, Contract, ethers } from 'ethers'
-import RouterAbi from '../abis/IUniswapV2Router02.json'
-import FactoryAbi from '../abis/IUniswapV2Factory.json'
-import ERC20Abi from '../abis/ERC20.json'
 import { jsonProvider } from '../network'
 import { Abi } from 'viem'
 import { fetchCurrentTokenPrice } from '../utils/price'
+import RouterAbi from '../abis/IUniswapV2Router02.json'
+import FactoryAbi from '../abis/IUniswapV2Factory.json'
+import ERC20Abi from '../abis/ERC20.json'
+import logger from '../utils/logger'
 
 export type Address = `0x${string}`
 export interface TPayload {
@@ -35,7 +36,7 @@ export class UniswapV2Like {
     this.factoryAddress = _factory
     this.factoryContract = new Contract(_factory, FactoryAbi, jsonProvider)
     this.fee = _fee
-    console.log(`New UniswapV2Like ${_name} added`)
+    logger.debug(`New UniswapV2Like ${_name} added`)
   }
 
   public async getPair(token0: string, token1: string): Promise<string> {
@@ -62,7 +63,7 @@ export class Token {
     this.symbol = _symbol
     this.decimals = _decimals
     this.contract = new ethers.Contract(_address, ERC20Abi, jsonProvider)
-    console.debug(`New token created: ${_name}`)
+    logger.debug(`New token created: ${_name}`)
   }
 
   public async updatePrice(): Promise<void> {
@@ -80,9 +81,11 @@ export class Pair {
   token0: Token
   token1: Token
   reserve0: BigNumber = BigNumber.from(0)
-  reserve0USD: BigNumber = BigNumber.from(0)
   reserve1: BigNumber = BigNumber.from(0)
-  reserve1USD: BigNumber = BigNumber.from(0)
+
+  // number type, not accurate. Just for filtering small TVL pairs
+  reserve0USD: number
+  reserve1USD: number
   lastUpdateTimestamp: number
 
   constructor(
@@ -98,23 +101,30 @@ export class Pair {
     this.exchange = _exchange
     ;[this.token0, this.token1] = [_token0, _token1]
     this.address = _pairAddress
+    logger.debug(
+      `New token created: ${_exchange.name}: ${_token0.symbol}/${_token1.symbol}`,
+    )
   }
 
-  public async updateReserves(
-    r0: BigNumber,
-    r1: BigNumber,
-    t: number,
-    updatePrice: boolean = false,
-  ) {
+  public async updateReserves(r0: BigNumber, r1: BigNumber, t: number) {
     this.reserve0 = r0
     this.reserve1 = r1
-    this.lastUpdateTimestamp = t
 
-    if (updatePrice) {
-      await this.token0.updatePrice()
-      await this.token1.updatePrice()
-      this.reserve0USD = this.reserve0.mul(this.token0.tokenPrice)
-      this.reserve1USD = this.reserve1.mul(this.token1.tokenPrice)
-    }
+    this.reserve0USD =
+      Number(
+        ethers.utils.formatUnits(
+          this.reserve0.toString(),
+          this.token0.decimals,
+        ),
+      ) * this.token0.tokenPrice
+
+    this.reserve1USD =
+      Number(
+        ethers.utils.formatUnits(
+          this.reserve1.toString(),
+          this.token1.decimals,
+        ),
+      ) * this.token1.tokenPrice
+    this.lastUpdateTimestamp = t
   }
 }

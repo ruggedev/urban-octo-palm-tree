@@ -9,7 +9,9 @@
   "scripts": {
     "format": "prettier --write '**/*.*(js|ts)'",
     "lint": "eslint . --ext .ts",
-    "start": "npx ts-node src/index.ts"
+    "start": "npx ts-node src/index.ts",
+    "demo:token": "npx ts-node src/demo/tokens.ts",
+    "demo:pair": "npx ts-node src/demo/pairs.ts"
   },
   "devDependencies": {
     "@types/node": "^18.14.2",
@@ -19,6 +21,7 @@
     "dotenv": "^16.3.1",
     "eslint": "^8.48.0",
     "ethers": "^5.5.2",
+    "log4js": "^6.9.1",
     "prettier": "^3.0.2",
     "source-map-loader": "^4.0.1",
     "ts-loader": "^9.4.2",

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { createPublicClient, http, PublicClient, Address } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { polygon } from 'viem/chains'
 import * as dotenv from 'dotenv'
 dotenv.config()

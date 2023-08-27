@@ -1,14 +1,11 @@
-import { Pair } from '../types'
+import { Pair, Token } from '../types'
 import PairABI from '../abis/IUniswapV2Pair.json'
 import { Abi } from 'viem'
 import { multiCallHelper } from './multicall'
 import { BigNumber } from 'ethers'
 import { viemClient } from '../network'
 
-export async function massUpdateReserve(
-  pairs: Pair[],
-  updatePrice: boolean = false,
-) {
+export async function massUpdateReserve(pairs: Pair[]) {
   // update reserves
   const updatePairCall: any[] = []
   pairs.map((pair) => {
@@ -26,7 +23,12 @@ export async function massUpdateReserve(
       BigNumber.from(r.res[0]),
       BigNumber.from(r.res[1]),
       r.res[2],
-      updatePrice,
     )
   })
+}
+
+export async function massUpdatePrice(tokens: Token[]): Promise<void> {
+  for (const t of tokens) {
+    await t.updatePrice()
+  }
 }

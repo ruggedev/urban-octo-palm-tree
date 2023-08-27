@@ -1,7 +1,11 @@
+import { logger } from './logger'
+
 export async function fetchCurrentTokenPrice(
   chainSlug: string,
   contractAddress: string,
 ): Promise<number | undefined> {
+  logger.debug(`fetching token price for ${chainSlug}:${contractAddress}`)
+
   try {
     const id = `${chainSlug}:${contractAddress}`
     const response = await fetch(
