@@ -1,11 +1,8 @@
-import {
-  getAllTokens,
-  getAllUniPairs,
-  getAllUniswapInstance,
-} from './constants'
+import { getAllUniswapInstance } from './constants'
 import { wssProvider } from './network'
 import { UniswapV2Like } from './types'
-import { printAllPairs, printAllTokens } from './utils/debug'
+import logger from './utils/logger'
+import { parseRouterTx } from './utils/parse'
 
 const filterTransaction = async (
   txHash: string,
@@ -19,8 +16,12 @@ const filterTransaction = async (
 
   // only get transaction related to those UniswapV2Router
   if (tx === null || !tx.to || !uniRouterAddresses.includes(tx.to)) return
+  logger.debug(`New transaction found from mempool: ${txHash}`)
 
-  console.log(`New transaction found from mempool: ${txHash}`)
+  // parse transaction and get related tokens
+  const parsedTx = parseRouterTx(tx)
+
+  console.log(parsedTx)
 }
 
 async function main() {
@@ -35,22 +36,9 @@ async function main() {
     process.exit(1)
   }
 
-  const tokens = await getAllTokens()
-
-  if (!tokens) {
-    console.error('Tokens not found')
-    process.exit(1)
-  }
-
-  const pairs = await getAllUniPairs(unis, tokens)
-  if (!pairs) {
-    console.error('Pairs not found')
-    process.exit(1)
-  }
-  printAllPairs(pairs)
-  //   wssProvider.on('pending', async (txHash: any) =>
-  //     filterTransaction(txHash, unis),
-  //   )
+  wssProvider.on('pending', async (txHash: any) =>
+    filterTransaction(txHash, unis),
+  )
 }
 
 main()

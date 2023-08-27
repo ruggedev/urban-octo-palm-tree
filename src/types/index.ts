@@ -8,6 +8,14 @@ import ERC20Abi from '../abis/ERC20.json'
 import logger from '../utils/logger'
 
 export type Address = `0x${string}`
+
+export interface ParsedSwapTokensForTokens {
+  amountIn: BigNumber
+  amountOutMin: BigNumber
+  path: Address[]
+  to: Address
+  deadline: BigNumber
+}
 export interface TPayload {
   abi: Abi
   address: Address
