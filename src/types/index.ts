@@ -16,6 +16,7 @@ export interface ParsedSwapTokensForTokens {
   to: Address
   deadline: BigNumber
 }
+
 export interface TPayload {
   abi: Abi
   address: Address
@@ -80,6 +81,45 @@ export class Token {
   }
 }
 
+export class PendingTxMap {
+  txns: Map<string, BigNumber>
+  maxTxns: number
+
+  constructor(maxTxns: number = 20) {
+    this.maxTxns = maxTxns
+    this.txns = new Map<string, BigNumber>()
+  }
+
+  public add(txHash: string, amount: BigNumber) {
+    if (this.txns.size == this.maxTxns) {
+      console.error(`Max pending txns`)
+    } else {
+      this.txns.set(txHash, amount)
+    }
+  }
+
+  public get(txHash: string) {
+    return this.txns.get(txHash)
+  }
+
+  public remove(txHash: string) {
+    this.txns.delete(txHash)
+  }
+
+  public clearTxns() {
+    this.txns.clear()
+  }
+
+  public getTotalChanges(): BigNumber {
+    let totalChanges: BigNumber = BigNumber.from(0)
+    for (const tx of this.txns.entries()) {
+      totalChanges = totalChanges.add(tx[1])
+    }
+
+    return totalChanges
+  }
+}
+
 export class Pair {
   exchange: UniswapV2Like
 
@@ -91,10 +131,18 @@ export class Pair {
   reserve0: BigNumber = BigNumber.from(0)
   reserve1: BigNumber = BigNumber.from(0)
 
+  // est r from mempool
+  estReserve0: BigNumber = BigNumber.from(0)
+  estReserve1: BigNumber = BigNumber.from(0)
+
+  // +ve for tokenA -> tokenB, -ve for tokenB -> tokenA
+  pendingTxns: PendingTxMap
+
   // number type, not accurate. Just for filtering small TVL pairs
   reserve0USD: number
   reserve1USD: number
   lastUpdateTimestamp: number
+  lastUpdateBlock: number
 
   constructor(
     _token0: Token,
@@ -114,7 +162,13 @@ export class Pair {
     )
   }
 
-  public async updateReserves(r0: BigNumber, r1: BigNumber, t: number) {
+  // actual r, update per block
+  public async updateReserves(
+    r0: BigNumber,
+    r1: BigNumber,
+    t: number,
+    b: number,
+  ) {
     this.reserve0 = r0
     this.reserve1 = r1
 
@@ -134,5 +188,12 @@ export class Pair {
         ),
       ) * this.token1.tokenPrice
     this.lastUpdateTimestamp = t
+    this.lastUpdateBlock = b
+  }
+
+  // est r base on txn in mempool
+  public updateEstReserves() {
+    // add txns to map
+    // update est r
   }
 }
