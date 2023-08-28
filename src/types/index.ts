@@ -144,6 +144,8 @@ export class Pair {
   lastUpdateTimestamp: number
   lastUpdateBlock: number
 
+  ratio: number
+
   constructor(
     _token0: Token,
     _token1: Token,
@@ -196,4 +198,32 @@ export class Pair {
     // add txns to map
     // update est r
   }
+}
+
+// Store the collection of pairs from different exchanges
+// TODO: handle inversed case
+export class PairGroup {
+  pairs: Pair[]
+  bestPair: Pair | null
+
+  constructor(_pairs: Pair[]) {
+    this.pairs = _pairs
+    this.bestPair = null
+
+    logger.info(
+      `New PairGroup ${this.pairs[0].token0.symbol}/${this.pairs[0].token1.symbol} created.`,
+    )
+  }
+
+  public async updateBestPair() {
+    const _bestPair = this.pairs.reduce((accumulator, current) => {
+      return accumulator.ratio > current.ratio ? accumulator : current
+    })
+    this.bestPair = _bestPair
+  }
+}
+
+export class Route {
+  // TODO: shd use Queue<Pair> instead
+  routes: Pair[]
 }
